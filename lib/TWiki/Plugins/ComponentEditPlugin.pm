@@ -222,7 +222,7 @@ sub getHtmlControlFor {
 
     my $control;
     if ($syntax{$TMLtype}->{$param_key}->{type} eq 'text') {
-        $control = CGI::textfield( -class=>'twikiEditFormError',
+        $control = CGI::textfield( -class=>'foswikiAlert',
                                  -name=>$param_key,
                                  -size=>80,
                                  -value=>$value,
@@ -259,7 +259,7 @@ sub getHtmlControlFor {
         my %radio_attrs;
         foreach my $item ( @$options ) {
             $radio_attrs{$item} =
-              { class=>'twikiEditFormRadioField twikiRadioButton',
+              { class=>'foswikiRadioButton',
                 label=>$item,
                 twikidefault=>$syntax{$TMLtype}->{$param_key}->{default}
                 };     #$session->handleCommonTags( $item, $web, $topic ) };
