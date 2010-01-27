@@ -26,7 +26,7 @@ The tag specific UI's require a round trip to the server, but the default can be
 
 use strict;
 
-package TWiki::Plugins::ComponentEditPlugin;
+package Foswiki::Plugins::ComponentEditPlugin;
 
 use vars qw( $VERSION $pluginName $debug  $currentWeb %vars %sectionIds $templateText $WEB $TOPIC %syntax);
 use vars qw( $MODERN %TWikiCompatibility %TWikiCompatibilityHEAD );
@@ -103,17 +103,17 @@ sub postRenderingHandler {
     #my $text = shift;
 #    return unless (pluginApplies('view'));
 
-   my $pluginPubUrl = TWiki::Func::getPubUrlPath().'/'.
-            TWiki::Func::getTwikiWebname().'/'.$pluginName;
+   my $pluginPubUrl = Foswiki::Func::getPubUrlPath().'/'.
+            Foswiki::Func::getTwikiWebname().'/'.$pluginName;
 
     #add the ComponentEdit JavaScript
-    my $jscript = TWiki::Func::readTemplate ( 'componenteditplugin', 'javascript' );
+    my $jscript = Foswiki::Func::readTemplate ( 'componenteditplugin', 'javascript' );
     $jscript =~ s/%PLUGINPUBURL%/$pluginPubUrl/g;
     addToHEAD($pluginName, $jscript);
 
     #TODO: evaluate the MAKETEXT's, and the variables....
-    $templateText = TWiki::Func::readTemplate ( 'componenteditplugin', 'popup' );
-    $templateText = TWiki::Func::expandCommonVariables( $templateText, $TOPIC, $WEB );
+    $templateText = Foswiki::Func::readTemplate ( 'componenteditplugin', 'popup' );
+    $templateText = Foswiki::Func::expandCommonVariables( $templateText, $TOPIC, $WEB );
 
     $_[0] =~ s/(<\/body>)/$templateText $1/g;
 }
@@ -127,7 +127,7 @@ sub getEdit {
     my $search = $tml;
     my $type = 'SEARCH';
     $search =~ s/%SEARCH{(.*)}%/$1/m;
-	my $attrs = new TWiki::Attrs($search);
+	my $attrs = new Foswiki::Attrs($search);
 
 	my $helperform  = CGI::start_table( { border => 1, class => 'twikiTable' } );
 #put DOCCO and defaultparameter first
@@ -156,8 +156,8 @@ sub getEdit {
 	$helperform .= CGI::end_table();
 
     #TODO: evaluate the MAKETEXT's, and the variables....
-    my $textarea = TWiki::Func::readTemplate ( 'componenteditplugin', 'popup' );
-    $textarea = TWiki::Func::expandCommonVariables( $textarea, $TOPIC, $WEB );
+    my $textarea = Foswiki::Func::readTemplate ( 'componenteditplugin', 'popup' );
+    $textarea = Foswiki::Func::expandCommonVariables( $textarea, $TOPIC, $WEB );
 
     #unhide div
     $textarea =~ s/display:none;/display:inline;/g;
@@ -175,10 +175,10 @@ sub getEdit {
 sub pluginApplies {
     my $scriptContext = shift;
 
-    if ($TWiki::Plugins::VERSION > 1.025) {
-        return 0 unless( TWiki::Func::getContext()->{$scriptContext} );
+    if ($Foswiki::Plugins::VERSION > 1.025) {
+        return 0 unless( Foswiki::Func::getContext()->{$scriptContext} );
     } else {
-        return 0 unless (TWiki::getPageMode() eq 'html');
+        return 0 unless (Foswiki::getPageMode() eq 'html');
         if( $ENV{"SCRIPT_FILENAME"} && $ENV{"SCRIPT_FILENAME"} =~ /^(.+)\/([^\/]+)$/ ) {
             my $script = $2;
             return 0 unless ($script eq $scriptContext);
@@ -186,9 +186,9 @@ sub pluginApplies {
     }
 
     #lets only apply to the skins i've tested on (nat, pattern, classic, koala)
-    return 0 unless (grep {TWiki::Func::getSkin() eq $_ } ('nat', 'pattern', 'classic', 'koala'));
+    return 0 unless (grep {Foswiki::Func::getSkin() eq $_ } ('nat', 'pattern', 'classic', 'koala'));
 
-    my $cgiQuery = TWiki::Func::getCgiQuery();
+    my $cgiQuery = Foswiki::Func::getCgiQuery();
     #lets only work in text/html....
     #and not with any of the 'special' options (rev=, )
     my $getViewRev = $cgiQuery->param('rev');
@@ -285,11 +285,11 @@ sub getHtmlControlFor {
 ##########################################################
 #Cairo compat gumpf
 sub registerRESTHandler {
-    if ($TWiki::Plugins::VERSION eq 1.025) {
+    if ($Foswiki::Plugins::VERSION eq 1.025) {
         my ($name, $funcRef) = @_;
         $TWikiCompatibility{RESTHandlers}{$pluginName.'.'.$name} = $funcRef;
     } else {
-        TWiki::Func::registerRESTHandler(@_);
+        Foswiki::Func::registerRESTHandler(@_);
     }
 }
 
@@ -298,7 +298,7 @@ sub registerRESTHandler {
 sub fakeTWiki4RestHandlers {
     my ( $text, $topic, $web ) = @_;   #params passed on from beforeCommonTagsHandler
     #This is the view script based REST Handler cludge
-   my $query = TWiki::Func::getCgiQuery();
+   my $query = Foswiki::Func::getCgiQuery();
    my $restCall = $query->param('rest');
     if (defined ($restCall) && defined($TWikiCompatibility{RESTHandlers}{$restCall})) {
         my $function = $TWikiCompatibility{RESTHandlers}{$restCall};
@@ -317,11 +317,11 @@ sub fakeTWiki4RestHandlers {
 
 
 sub addToHEAD {
-    if ($TWiki::Plugins::VERSION eq 1.025) {
+    if ($Foswiki::Plugins::VERSION eq 1.025) {
         my ($name, $text) = @_;
         $TWikiCompatibility{HEAD}{$name} = $text;
     } else {
-        TWiki::Func::addToHEAD( @_ );
+        Foswiki::Func::addToHEAD( @_ );
     }
 }
 
@@ -334,7 +334,7 @@ sub commonTagsHandler {
      return unless (keys(%{$TWikiCompatibility{HEAD}}) > 0);
 
         #fake up addToHead for cairo
-    if ($TWiki::Plugins::VERSION eq 1.025) {
+    if ($Foswiki::Plugins::VERSION eq 1.025) {
         my $htmlHeader = join(
             "\n",
             map { '<!--'.$_.'-->'.$TWikiCompatibility{HEAD}{$_} }
@@ -348,10 +348,10 @@ sub commonTagsHandler {
 
 sub setupTWiki4Compatibility {
     # check for Plugins.pm versions
-    if ( $TWiki::Plugins::VERSION < 1.025 ) {
-        TWiki::Func::writeWarning( "Version mismatch between $pluginName and Plugins.pm (tested on Cairo and TWiki-4.0))" );
+    if ( $Foswiki::Plugins::VERSION < 1.025 ) {
+        Foswiki::Func::writeWarning( "Version mismatch between $pluginName and Plugins.pm (tested on Cairo and TWiki-4.0))" );
         return 0;
-    } elsif ($TWiki::Plugins::VERSION eq 1.025) {
+    } elsif ($Foswiki::Plugins::VERSION eq 1.025) {
         #Cairo
         %{$TWikiCompatibility{HEAD}} = ();
         %{$TWikiCompatibility{HEAD}} = ();
