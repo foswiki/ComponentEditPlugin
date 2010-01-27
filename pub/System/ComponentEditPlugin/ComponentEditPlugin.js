@@ -16,43 +16,43 @@
 #
 */
 
-//create the TWiki namespace if needed
-if ( typeof( TWiki ) == "undefined" ) {
-    TWiki = {};
+//create the Foswiki namespace if needed
+if ( typeof( Foswiki ) == "undefined" ) {
+    Foswiki = {};
 }
 
 /**********************************************************************************/
-//create the TWiki.ComponentEditPlugin namespace if needed
-if ( typeof( TWiki.ComponentEditPlugin ) == "undefined" ) {
-    TWiki.ComponentEditPlugin = {};
+//create the Foswiki.ComponentEditPlugin namespace if needed
+if ( typeof( Foswiki.ComponentEditPlugin ) == "undefined" ) {
+    Foswiki.ComponentEditPlugin = {};
 }
 
 //used to add a ComponentEdit Click handler to document
-TWiki.ComponentEditPlugin.addComponentEditClick = function(body) {
-    body.TWikiComponentEditPluginonClickFunction = TWiki.ComponentEditPlugin.onClickFunction;
-    XBrowserAddHandler(body, 'click', 'TWikiComponentEditPluginonClickFunction');
+Foswiki.ComponentEditPlugin.addComponentEditClick = function(body) {
+    body.FoswikiComponentEditPluginonClickFunction = Foswiki.ComponentEditPlugin.onClickFunction;
+    XBrowserAddHandler(body, 'click', 'FoswikiComponentEditPluginonClickFunction');
 
     //TODO: make keypress see if its within a TMLVariable area and pop up cleverness
 //    this.current_mode.get_edit_document().addEventListener('keypress', function(e) {var tg = (e.target) ? e.target : e.srcElement;alert(tg);}, false);
 }
 
-TWiki.ComponentEditPlugin.onClickFunction = function(event) {
+Foswiki.ComponentEditPlugin.onClickFunction = function(event) {
     var tg = (event.target) ? event.target : event.srcElement;
     if (tg.className=='TMLvariable') {
-        TWiki.ComponentEditPlugin.sourceTarget = tg;
-        TWiki.ComponentEditPlugin.popupEdit(event, tg.innerHTML);
+        Foswiki.ComponentEditPlugin.sourceTarget = tg;
+        Foswiki.ComponentEditPlugin.popupEdit(event, tg.innerHTML);
     } else {
         //if we're not in a TMLVariable element, then we have to be careful to parse and replace only the parsed bit..
     }
 }
 
-TWiki.ComponentEditPlugin.popupEdit = function(event, tml) {
+Foswiki.ComponentEditPlugin.popupEdit = function(event, tml) {
     if ((tml) && (tml != '')) {
         if (tml.indexOf('SEARCH') > -1) {
 //TODO: need to get rid of the getting rid of %'s
 //tml = '%'+tml+'%';
-            TWiki.JSPopupPlugin.openPopup(event, 'Please wait, requesting data from server');
-            TWiki.JSPopupPlugin.ajaxCall(event, TWiki.ComponentEditPlugin.restUrl, 'tml='+tml);
+            Foswiki.JSPopupPlugin.openPopup(event, 'Please wait, requesting data from server');
+            Foswiki.JSPopupPlugin.ajaxCall(event, Foswiki.ComponentEditPlugin.restUrl, 'tml='+tml);
         } else {
     	    var showControl = document.getElementById('componenteditplugindiv');
         	var showControlText = document.getElementById('componentedittextarea');
@@ -62,44 +62,44 @@ TWiki.ComponentEditPlugin.popupEdit = function(event, tml) {
 	        dialogtext = dialogtext.replace(/COMPONENTEDITPLUGINTML/, tml);
             //remove COMPONENTEDITPLUGINCUSTOM (its for inserting inputs above the textarea like SEARCH)
             dialogtext = dialogtext.replace(/COMPONENTEDITPLUGINCUSTOM/, '');
-	        TWiki.JSPopupPlugin.openPopup(event, dialogtext);
+	        Foswiki.JSPopupPlugin.openPopup(event, dialogtext);
         }
 
         //try { showControlText.focus(); } catch (er) {alert(er)}
     } else {
-        TWiki.JSPopupPlugin.closePopup(event);
+        Foswiki.JSPopupPlugin.closePopup(event);
     }
 }
 
-TWiki.ComponentEditPlugin.saveClick = function(event) {
+Foswiki.ComponentEditPlugin.saveClick = function(event) {
     var tg = (event.target) ? event.target : event.srcElement;
     var result = tg.form.elements.namedItem("componentedit").value;
 
-    if (TWiki.ComponentEditPlugin.sourceTarget.className=='TMLvariable') {
-        TWiki.ComponentEditPlugin.sourceTarget.innerHTML = result;
-        TWiki.ComponentEditPlugin.popupEdit(event, null);
+    if (Foswiki.ComponentEditPlugin.sourceTarget.className=='TMLvariable') {
+        Foswiki.ComponentEditPlugin.sourceTarget.innerHTML = result;
+        Foswiki.ComponentEditPlugin.popupEdit(event, null);
     } else {
         //if we're not in a TMLVariable element, then we have to be careful to parse and replace only the parsed bit..
         var pre = '';
         var post = '';
 
-        var splitByPercents = TWiki.ComponentEditPlugin.sourceTarget.value.split('%');
-        for (var i=0;i<TWiki.ComponentEditPlugin.startIdx-1;i++) {
+        var splitByPercents = Foswiki.ComponentEditPlugin.sourceTarget.value.split('%');
+        for (var i=0;i<Foswiki.ComponentEditPlugin.startIdx-1;i++) {
             pre = pre+splitByPercents[i] + '%';
         }
         pre = pre+splitByPercents[i];
-        for (var i=TWiki.ComponentEditPlugin.stopIdx+1;i<splitByPercents.length-1;i++) {
+        for (var i=Foswiki.ComponentEditPlugin.stopIdx+1;i<splitByPercents.length-1;i++) {
              post = post+splitByPercents[i] + '%';
         }
         post = post+splitByPercents[i];
 
         //TODO: arge - i'm embedding the assumption of textarea here
-        TWiki.ComponentEditPlugin.sourceTarget.value = pre + result + post;
-        TWiki.ComponentEditPlugin.popupEdit(event, null);
+        Foswiki.ComponentEditPlugin.sourceTarget.value = pre + result + post;
+        Foswiki.ComponentEditPlugin.popupEdit(event, null);
     }
 }
 
-TWiki.ComponentEditPlugin.inputFieldModified = function(event) {
+Foswiki.ComponentEditPlugin.inputFieldModified = function(event) {
 //iterate over all input fields, and any that are different from the default, put into the textarea TWMLVariable
 //can optimise by only changing that attr that triggered the event
     var tg = (event.target) ? event.target : event.srcElement;

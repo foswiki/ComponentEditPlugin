@@ -1,7 +1,7 @@
 %META:TOPICINFO{author="SvenDowideit" date="1144552219" format="1.1" version="1.2"}%
 ---+!! <nop>%TOPIC%
 
-The ComponentEditPlugin is used in conjunction with an editor (like InlineEditPlugin) to bring up Syntax specific Edit UI's.
+The ComponentEditPlugin is used in conjunction with an editor (like TinyMCE) to bring up Syntax specific Edit UI's.
 
 By default it will pop up a floating div window containing a simple textarea, but in combination with registered tag syntax, can generate tag specific UI's (%!SEARCH% is the upcoming demo example)
 
@@ -35,15 +35,16 @@ __Note:__ You do not need to install anything on the browser to use this plugin.
 
 ---++ Plugin Info
 
-|  Plugin Author: | TWiki:Main.SvenDowideit - SvenDowideit@wikiring.com |
-|  Plugin Version: | 30 April 2006 (V0.900) |
+|  Plugin Author: | TWiki:Main.SvenDowideit - SvenDowideit@fosiki.com |
+|  Plugin Version: | Jan 2010 (V0.91) |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  27 Jan 2010:   | port for TinyMCE and Foswiki |
 |  30 April 2006: | Initial version |
 |  TWiki Dependency: | $TWiki::Plugins::VERSION 1.024 |
 |  CPAN Dependencies: | none |
-|  Other Dependencies: | JSPopupPlugin |
+|  Other Dependencies: |  |
 |  Perl Version: | 5.005 |
-|  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
+|  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License 3]]) |
 |  Plugin Home: | http://foswiki.org/Extensions/%TOPIC% |
 |  Feedback: | http://foswiki.org/Extensions/%TOPIC%Dev |
 

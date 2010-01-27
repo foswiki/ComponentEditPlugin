@@ -1,10 +1,10 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2005 Sven Dowideit SvenDowideit@wikiring.com
+# Copyright (C) 2005-2010 Sven Dowideit SvenDowideit@fosiki.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
+# as published by the Free Software Foundation; either version 3
 # of the License, or (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -29,7 +29,7 @@ use strict;
 package Foswiki::Plugins::ComponentEditPlugin;
 
 use vars qw( $VERSION $pluginName $debug  $currentWeb %vars %sectionIds $templateText $WEB $TOPIC %syntax);
-use vars qw( $MODERN %TWikiCompatibility %TWikiCompatibilityHEAD );
+
 
 $VERSION = '0.100';
 $pluginName = 'ComponentEditPlugin';  # Name of this Plugin
@@ -79,8 +79,7 @@ not used for plugins specific functionality at present
 sub initPlugin {
     my( $topic, $web, $user, $installWeb ) = @_;
 
-    setupTWiki4Compatibility();
-    registerRESTHandler('getEdit', \&getEdit);
+    Foswiki::Func::registerRESTHandler('getEdit', \&getEdit);
 
     $WEB = $web;
     $TOPIC= $topic;
@@ -93,7 +92,6 @@ sub initPlugin {
 # DEPRECATED in Dakar (postRenderingHandler does the job better)
 # This handler is required to re-insert blocks that were removed to protect
 # them from TWiki rendering, such as TWiki variables.
-$TWikiCompatibility{endRenderingHandler} = 1.1;
 sub endRenderingHandler {
   return postRenderingHandler( @_ );
 }
@@ -109,7 +107,7 @@ sub postRenderingHandler {
     #add the ComponentEdit JavaScript
     my $jscript = Foswiki::Func::readTemplate ( 'componenteditplugin', 'javascript' );
     $jscript =~ s/%PLUGINPUBURL%/$pluginPubUrl/g;
-    addToHEAD($pluginName, $jscript);
+    Foswiki::Func::addToHEAD($pluginName, $jscript);
 
     #TODO: evaluate the MAKETEXT's, and the variables....
     $templateText = Foswiki::Func::readTemplate ( 'componenteditplugin', 'popup' );
@@ -129,7 +127,7 @@ sub getEdit {
     $search =~ s/%SEARCH{(.*)}%/$1/m;
 	my $attrs = new Foswiki::Attrs($search);
 
-	my $helperform  = CGI::start_table( { border => 1, class => 'twikiTable' } );
+	my $helperform  = CGI::start_table( { border => 1, class => 'foswikiTable' } );
 #put DOCCO and defaultparameter first
     $helperform .= CGI::Tr(
                         CGI::Th($type),
@@ -137,7 +135,7 @@ sub getEdit {
 #                        CGI::Th($syntax{$type}->{DOCUMENTATION}->{DOCCO}),
                         );
 
-	$helperform .= CGI::hidden( -name=>'twikitagname', -default=>$type);
+	$helperform .= CGI::hidden( -name=>'foswikitagname', -default=>$type);
 
     foreach my $param_keys (keys (%{$syntax{$type}})) {
         next if ($param_keys eq 'DOCUMENTATION');
@@ -222,14 +220,14 @@ sub getHtmlControlFor {
 
     my $control;
     if ($syntax{$TMLtype}->{$param_key}->{type} eq 'text') {
-        $control = CGI::textfield( -class=>'twikiAlert',
+        $control = CGI::textfield( -class=>'foswikiAlert',
                                  -name=>$param_key,
                                  -size=>80,
                                  -value=>$value,
                                  -title=>$syntax{$TMLtype}->{$param_key}->{default},
-                                 -onchange=>'TWiki.ComponentEditPlugin.inputFieldModified(event)',
-                                 -onkeyup=>'TWiki.ComponentEditPlugin.inputFieldModified(event)',
-                                 -twikidefault=>$syntax{$TMLtype}->{$param_key}->{default}
+                                 -onchange=>'Foswiki.ComponentEditPlugin.inputFieldModified(event)',
+                                 -onkeyup=>'Foswiki.ComponentEditPlugin.inputFieldModified(event)',
+                                 -foswikidefault=>$syntax{$TMLtype}->{$param_key}->{default}
                     );
     } elsif ($syntax{$TMLtype}->{$param_key}->{type} eq 'dropdown') {
 #        ASSERT( ref( $options )) if DEBUG;
@@ -247,8 +245,8 @@ sub getHtmlControlFor {
             {
                 name=>$param_key,
                 title=>$syntax{$TMLtype}->{$param_key}->{default},
-                onchange=>'TWiki.ComponentEditPlugin.inputFieldModified(event)',
-                twikidefault=>$syntax{$TMLtype}->{$param_key}->{default}
+                onchange=>'Foswiki.ComponentEditPlugin.inputFieldModified(event)',
+                foswikidefault=>$syntax{$TMLtype}->{$param_key}->{default}
             },
             $choices );
 
@@ -259,9 +257,9 @@ sub getHtmlControlFor {
         my %radio_attrs;
         foreach my $item ( @$options ) {
             $radio_attrs{$item} =
-              { class=>'twikiRadioButton',
+              { class=>'foswikiRadioButton',
                 label=>$item,
-                twikidefault=>$syntax{$TMLtype}->{$param_key}->{default}
+                foswikidefault=>$syntax{$TMLtype}->{$param_key}->{default}
                 };     #$session->handleCommonTags( $item, $web, $topic ) };
 
             $selected = $item if( $item eq $value );
@@ -272,7 +270,7 @@ sub getHtmlControlFor {
                                    -default => $value || $syntax{$TMLtype}->{$param_key}->{default},
 #                                   -columns => $size,
                                    -attributes => \%radio_attrs,
-                                -onchange=>'TWiki.ComponentEditPlugin.inputFieldModified(event)',
+                                -onchange=>'Foswiki.ComponentEditPlugin.inputFieldModified(event)',
                         );
     } else {
         $control = $value;
@@ -281,82 +279,4 @@ sub getHtmlControlFor {
     return $control;
 }
 
-
-##########################################################
-#Cairo compat gumpf
-sub registerRESTHandler {
-    if ($Foswiki::Plugins::VERSION eq 1.025) {
-        my ($name, $funcRef) = @_;
-        $TWikiCompatibility{RESTHandlers}{$pluginName.'.'.$name} = $funcRef;
-    } else {
-        Foswiki::Func::registerRESTHandler(@_);
-    }
-}
-
-#to fake TWiki4 restHanders in Cairo, use the view script (url is different too :( view/WEB/TOPIC?rest=InlineEditPlugin.restHandlerFuncName)
-#and add this sub to your beforeCommonTagsHandler
-sub fakeTWiki4RestHandlers {
-    my ( $text, $topic, $web ) = @_;   #params passed on from beforeCommonTagsHandler
-    #This is the view script based REST Handler cludge
-   my $query = Foswiki::Func::getCgiQuery();
-   my $restCall = $query->param('rest');
-    if (defined ($restCall) && defined($TWikiCompatibility{RESTHandlers}{$restCall})) {
-        my $function = $TWikiCompatibility{RESTHandlers}{$restCall};
-        print $query->header(
-                    -content_type => 'text',
-             );
-        no strict 'refs';
-        my $session = {};
-        $session->{cgiQuery} = $query;
-        my $result='';
-        $result=&$function($session,$web,$topic);
-        print $result;
-        exit 1;
-    }
-}
-
-
-sub addToHEAD {
-    if ($Foswiki::Plugins::VERSION eq 1.025) {
-        my ($name, $text) = @_;
-        $TWikiCompatibility{HEAD}{$name} = $text;
-    } else {
-        Foswiki::Func::addToHEAD( @_ );
-    }
-}
-
-#TODO:can i make this TWikiCompat too?
-#this is only there to support the addition of HEAD sections
-sub commonTagsHandler {
-#    my ( $text, $topic, $web ) = @_;
-
-    return unless ($_[0] =~ /<\/head>/);
-     return unless (keys(%{$TWikiCompatibility{HEAD}}) > 0);
-
-        #fake up addToHead for cairo
-    if ($Foswiki::Plugins::VERSION eq 1.025) {
-        my $htmlHeader = join(
-            "\n",
-            map { '<!--'.$_.'-->'.$TWikiCompatibility{HEAD}{$_} }
-                keys %{$TWikiCompatibility{HEAD}});
-        $_[0] =~ s/([<]\/head[>])/$htmlHeader$1/i if $htmlHeader;
-        chomp($_[0]);
-
-        %{$TWikiCompatibility{HEAD}} = ();
-    }
-}
-
-sub setupTWiki4Compatibility {
-    # check for Plugins.pm versions
-    if ( $Foswiki::Plugins::VERSION < 1.025 ) {
-        Foswiki::Func::writeWarning( "Version mismatch between $pluginName and Plugins.pm (tested on Cairo and TWiki-4.0))" );
-        return 0;
-    } elsif ($Foswiki::Plugins::VERSION eq 1.025) {
-        #Cairo
-        %{$TWikiCompatibility{HEAD}} = ();
-        %{$TWikiCompatibility{HEAD}} = ();
-    } else {
-        #TWiki-4.0 and above
-    }
-}
 1;
