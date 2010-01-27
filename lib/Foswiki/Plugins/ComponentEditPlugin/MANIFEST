@@ -3,3 +3,9 @@ pub/System/ComponentEditPlugin/ComponentEditPlugin.js
 lib/Foswiki/Plugins/ComponentEditPlugin.pm  Plugin Perl module 
 templates/componenteditplugin.javascript.tmpl
 templates/componenteditplugin.popup.tmpl
+
+#TinyMCE plugin
+pub/System/TinyMCEPlugin/tinymce/jscripts/tiny_mce/plugins/foswikimacro/langs/en_dlg.js
+pub/System/TinyMCEPlugin/tinymce/jscripts/tiny_mce/plugins/foswikimacro/langs/en.js
+pub/System/TinyMCEPlugin/tinymce/jscripts/tiny_mce/plugins/foswikimacro/editor_plugin_src.js
+pub/System/TinyMCEPlugin/tinymce/jscripts/tiny_mce/plugins/foswikimacro/img/tag-purple.gif

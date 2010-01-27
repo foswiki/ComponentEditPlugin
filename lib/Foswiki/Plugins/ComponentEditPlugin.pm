@@ -28,6 +28,10 @@ use strict;
 
 package Foswiki::Plugins::ComponentEditPlugin;
 
+use Foswiki::Attrs;
+use CGI;
+use HTML::Entities;
+
 use vars qw( $VERSION $pluginName $debug  $currentWeb %vars %sectionIds $templateText $WEB $TOPIC %syntax);
 
 
@@ -89,18 +93,17 @@ sub initPlugin {
     return 1;
 }
 
-# DEPRECATED in Dakar (postRenderingHandler does the job better)
-# This handler is required to re-insert blocks that were removed to protect
-# them from TWiki rendering, such as TWiki variables.
-sub endRenderingHandler {
-  return postRenderingHandler( @_ );
-}
-
 sub postRenderingHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     #my $text = shift;
 #    return unless (pluginApplies('view'));
 
+    my $templateText = getJavascriptTemplate();
+
+    $_[0] =~ s/(<\/body>)/$templateText $1/g;
+}
+
+sub getJavascriptTemplate {
    my $pluginPubUrl = Foswiki::Func::getPubUrlPath().'/'.
             Foswiki::Func::getTwikiWebname().'/'.$pluginName;
 
@@ -112,27 +115,30 @@ sub postRenderingHandler {
     #TODO: evaluate the MAKETEXT's, and the variables....
     $templateText = Foswiki::Func::readTemplate ( 'componenteditplugin', 'popup' );
     $templateText = Foswiki::Func::expandCommonVariables( $templateText, $TOPIC, $WEB );
-
-    $_[0] =~ s/(<\/body>)/$templateText $1/g;
+    
+    return $templateText;
 }
 
 #a rest method
 sub getEdit {
 	my ($session) = shift;
-    my $tml = $session->{cgiQuery}->param('tml');
+    my $tml = decode_entities($session->{cgiQuery}->param('tml'));
+    $tml =~ s/\xa0/ /g; #TODO: don't want to get distracted by this til the old code works - need to de unicode the URI, or?
+
+    #print STDERR "---- ($tml)---\n";
 
 #HARDCODED to SEARCH
     my $search = $tml;
     my $type = 'SEARCH';
     $search =~ s/%SEARCH{(.*)}%/$1/m;
-	my $attrs = new Foswiki::Attrs($search);
+    my $attrs = new Foswiki::Attrs($search);
 
 	my $helperform  = CGI::start_table( { border => 1, class => 'foswikiTable' } );
 #put DOCCO and defaultparameter first
     $helperform .= CGI::Tr(
-                        CGI::Th($type),
-                        CGI::Th('Value'),
-#                        CGI::Th($syntax{$type}->{DOCUMENTATION}->{DOCCO}),
+                        CGI::th($type),
+                        CGI::th('Value'),
+#                        CGI::th($syntax{$type}->{DOCUMENTATION}->{DOCCO}),
                         );
 
 	$helperform .= CGI::hidden( -name=>'foswikitagname', -default=>$type);
@@ -146,9 +152,9 @@ sub getEdit {
         push( @docco_attrs, title => $syntax{$type}->{$param_keys}->{DOCCO} );
 
 	    $helperform .= CGI::Tr(
-    		CGI::Td( { @docco_attrs }, $param_keys),
-	    	CGI::Td($value),
-#            CGI::Td($syntax{$type}->{$param_keys}->{DOCCO}),
+    		CGI::td( { @docco_attrs }, $param_keys),
+	    	CGI::td($value),
+#            CGI::td($syntax{$type}->{$param_keys}->{DOCCO}),
 		);
     }
 	$helperform .= CGI::end_table();
@@ -157,13 +163,20 @@ sub getEdit {
     my $textarea = Foswiki::Func::readTemplate ( 'componenteditplugin', 'popup' );
     $textarea = Foswiki::Func::expandCommonVariables( $textarea, $TOPIC, $WEB );
 
+    my $jscript = Foswiki::Func::readTemplate ( 'componenteditplugin', 'javascript' );
+    my $pluginPubUrl = Foswiki::Func::getPubUrlPath().'/'.
+            Foswiki::Func::getTwikiWebname().'/'.$pluginName;
+    $jscript =~ s/%PLUGINPUBURL%/$pluginPubUrl/g;
+    $jscript = Foswiki::Func::expandCommonVariables( $jscript, $TOPIC, $WEB );
+
+
     #unhide div
     $textarea =~ s/display:none;/display:inline;/g;
 
     $textarea =~ s/COMPONENTEDITPLUGINCUSTOM/$helperform/e;
     $textarea =~ s/COMPONENTEDITPLUGINTML/$tml/e;
 
-    return $textarea;
+    return $jscript."\n".$textarea;
 }
 
 ##############################################################

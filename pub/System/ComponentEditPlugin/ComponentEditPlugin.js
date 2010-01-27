@@ -104,21 +104,22 @@ Foswiki.ComponentEditPlugin.inputFieldModified = function(event) {
 //can optimise by only changing that attr that triggered the event
     var tg = (event.target) ? event.target : event.srcElement;
 
-    var tml = ''+tg.form.elements.namedItem("twikitagname").value+'{';
+    var tml = ''+tg.form.elements.namedItem("foswikitagname").value+'{\n';
 
     for (i=0; i < tg.form.elements.length; i++) {
         elem = tg.form.elements[i];
-        if (elem.name == 'twikitagname') {continue;};
+        if (elem.name == 'foswikitagname') {continue;};
         if (elem.name == 'componentedit') {continue;};
         if (elem.name == 'action_save') {continue;};
         if (elem.name == 'action_cancel') {continue;};
+        if (elem.name == 'validation_key') {continue;};
 
         if ((elem.type == 'radio') && (!elem.checked)) {continue;};
 
-        var defaultval = elem.getAttribute('twikidefault');
+        var defaultval = elem.getAttribute('foswikidefault');
         if ((typeof( defaultval ) != "undefined") && (elem.value == defaultval)) {continue;};
 
-        tml = tml + elem.name +'="'+elem.value+'" ';
+        tml = tml + elem.name +'="'+elem.value+'" \n';
     }
 
     tml = tml+'}';
