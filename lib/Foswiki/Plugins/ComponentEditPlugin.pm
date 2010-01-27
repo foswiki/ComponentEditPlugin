@@ -93,44 +93,20 @@ sub initPlugin {
     return 1;
 }
 
-sub postRenderingHandler {
-    # do not uncomment, use $_[0], $_[1]... instead
-    #my $text = shift;
-#    return unless (pluginApplies('view'));
-
-    my $templateText = getJavascriptTemplate();
-
-    $_[0] =~ s/(<\/body>)/$templateText $1/g;
-}
-
-sub getJavascriptTemplate {
-   my $pluginPubUrl = Foswiki::Func::getPubUrlPath().'/'.
-            Foswiki::Func::getTwikiWebname().'/'.$pluginName;
-
-    #add the ComponentEdit JavaScript
-    my $jscript = Foswiki::Func::readTemplate ( 'componenteditplugin', 'javascript' );
-    $jscript =~ s/%PLUGINPUBURL%/$pluginPubUrl/g;
-    Foswiki::Func::addToHEAD($pluginName, $jscript);
-
-    #TODO: evaluate the MAKETEXT's, and the variables....
-    $templateText = Foswiki::Func::readTemplate ( 'componenteditplugin', 'popup' );
-    $templateText = Foswiki::Func::expandCommonVariables( $templateText, $TOPIC, $WEB );
-    
-    return $templateText;
-}
-
 #a rest method
 sub getEdit {
 	my ($session) = shift;
     my $tml = decode_entities($session->{cgiQuery}->param('tml'));
     $tml =~ s/\xa0/ /g; #TODO: don't want to get distracted by this til the old code works - need to de unicode the URI, or?
+    $tml =~ s/\n//g;
 
-    #print STDERR "---- ($tml)---\n";
+    print STDERR "---- ($tml)---\n";
 
 #HARDCODED to SEARCH
     my $search = $tml;
     my $type = 'SEARCH';
     $search =~ s/%SEARCH{(.*)}%/$1/m;
+#TODO: need to work out howto do multi-line MACROs
     my $attrs = new Foswiki::Attrs($search);
 
 	my $helperform  = CGI::start_table( { border => 1, class => 'foswikiTable' } );

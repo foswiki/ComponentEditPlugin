@@ -56,6 +56,7 @@
 				var selectedNode = ed.dom.getParent(ed.selection.getStart(), function(n) {
 					return n;
 				});
+				//TODO: need to set the selection to the entire innerHTML
 				if ((typeof(selectedNode.innerHTML) != "undefined") && 
 					(selectedNode.innerHTML[0] == '%')) {
 					//alert(selectedNode.innerHTML);
@@ -75,7 +76,12 @@
 					    plugin_url: url
 					});
 				} else {
-					alert("add new TML Macro");
+					if ((typeof(selectedNode.innerHTML) != "undefined")) {
+						alert("add new TML Macro ("+selectedNode.innerHTML+")");
+					} else {
+						alert("add new TML Macro");
+
+					}
 				}
 			});
 			ed.addButton('componentedit', {
