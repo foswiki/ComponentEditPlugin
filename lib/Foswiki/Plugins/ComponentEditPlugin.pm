@@ -225,44 +225,45 @@ sub getEdit {
 
     print STDERR "---- ($tml)---\n";
 
-    #HARDCODED to SEARCH
-    my $search = $tml;
-    my $type   = 'SEARCH';
-    $search =~ s/%SEARCH{(.*)}%/$1/m;
+    my $helperform = '';
+    #TODO: hand coded dumbness - go find the MarcoRegex..
+    $tml =~ /%([A-Z]*){(.*)}%/;
+    if (defined($1)) {
+        my $type   = $1;
+        my $search = $2;
 
-    #TODO: need to work out howto do multi-line MACROs
-    my $attrs = new Foswiki::Attrs($search);
+        #TODO: need to work out howto do multi-line MACROs
+        my $attrs = new Foswiki::Attrs($search);
 
-    my $helperform =
-      CGI::start_table( { border => 1, class => 'foswikiFormTable' } );
+        $helperform =
+          CGI::start_table( { border => 1, class => 'foswikiFormTable' } );
 
-    #put DOCCO and defaultparameter first
-    $helperform .= CGI::Tr(
-        CGI::th($type),
-        CGI::th('Value'),
-
-     #                        CGI::th($syntax{$type}->{DOCUMENTATION}->{DOCCO}),
-    );
-
-    $helperform .= CGI::hidden( -name => 'foswikitagname', -default => $type );
-
-    foreach my $param_keys ( keys( %{ $syntax{$type} } ) ) {
-        next if ( $param_keys eq 'DOCUMENTATION' );
-
-        my $value = getHtmlControlFor( $type, $param_keys, $attrs );
-
-        my @docco_attrs;
-        push( @docco_attrs, title => $syntax{$type}->{$param_keys}->{DOCCO} );
-
+        #put DOCCO and defaultparameter first
         $helperform .= CGI::Tr(
-            CGI::td( {@docco_attrs}, $param_keys ),
-            CGI::td($value),
-
-            #            CGI::td($syntax{$type}->{$param_keys}->{DOCCO}),
+            CGI::th($type),
+            CGI::th('Value'),
         );
-    }
-    $helperform .= CGI::end_table();
 
+        $helperform .= CGI::hidden( -name => 'foswikitagname', -default => $type );
+
+        foreach my $param_keys ( keys( %{ $syntax{$type} } ) ) {
+            next if ( $param_keys eq 'DOCUMENTATION' );
+
+            my $value = getHtmlControlFor( $type, $param_keys, $attrs );
+
+            my @docco_attrs;
+            push( @docco_attrs, title => $syntax{$type}->{$param_keys}->{DOCCO} );
+
+            $helperform .= CGI::Tr(
+                CGI::td( {@docco_attrs}, $param_keys ),
+                CGI::td($value),
+            );
+        }
+        $helperform .= CGI::end_table();
+    } else {
+        #not a tag?
+    }
+    
     #TODO: evaluate the MAKETEXT's, and the variables....
     my $textarea =
       Foswiki::Func::readTemplate( 'componenteditplugin', 'popup' );
