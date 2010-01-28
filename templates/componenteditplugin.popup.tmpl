@@ -1,8 +1,37 @@
+%TMPL:INCLUDE{"css"}%
+
+%TMPL:P{"defaultstyle"}%
+<style>
+#componenteditpluginPopup {
+    margin: 0;
+    padding: 0;
+}
+table.foswikiFormTable {
+   font-size: 8pt;
+   font-family: monospace;
+    color: gray;
+    align: right;
+    margin: 0;
+    width: 100%;
+}
+table.foswikiFormTable th {
+    color: black;
+    font-size:9pt;
+    text-align:left;
+}
+.foswikiInputField, .foswikiSelect {
+width:100%;
+}
+</style>
+<body id="componenteditpluginPopup">
 <div id="componenteditplugindiv" style="display:none;">
 <form name="componenteditpluginform"  method="post">
     COMPONENTEDITPLUGINCUSTOM
     <textarea id="componentedittextarea" name="componentedit" rows="10" cols="100" style='%EDITBOXSTYLE%'>COMPONENTEDITPLUGINTML</textarea>
-    <input type="button" onclick="Foswiki.ComponentEditPlugin.saveClick(event);tinyMCEPopup.close();" class="foswikiSubmit" name="action_save" id="save" value='Save' />
-    <input type="button" onclick="tinyMCEPopup.close();" class="foswikiSubmit" name="action_cancel" id="cancel" value='Cancel' />
+    <span class="patternActionButtons">
+        <input type="button" onclick="Foswiki.ComponentEditPlugin.saveClick(event);tinyMCEPopup.close();" class="foswikiSubmit" name="action_save" id="save" value='Save' />
+        <input type="button" onclick="tinyMCEPopup.close();" class="foswikiButtonCancel" name="action_cancel" id="cancel" value='Cancel' />
+    </span>
 </form>
 </div>
+</body>
