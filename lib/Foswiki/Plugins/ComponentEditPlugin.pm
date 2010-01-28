@@ -39,6 +39,57 @@ $VERSION    = '0.100';
 $pluginName = 'ComponentEditPlugin';    # Name of this Plugin
 
 my %syntax = (
+    GROUPINFO => {
+        DOCUMENTATION => {
+            type  => 'DOCCO',
+            DOCCO => 'retrieve details about a Group'
+        },
+        _DEFAULT => {
+            type             => 'text',
+            defaultparameter => 1,
+            default          => '',
+            DOCCO =>
+'If the groupname is specified, GROUPINFO returns a comma-separated list of users in that group, if its empty, a comma-separated list of all groups '
+        },
+        header => {
+            type    => 'text',
+            default => '',
+            DOCCO =>
+'Custom format results: see FormattedSearch for usage, variables & examples'
+        },
+        format => {
+            type    => 'text',
+            default => '',
+            DOCCO =>
+'• $name expands to the group name, and (for users list only)
+• $wikiname, $username and $wikiusername to the relevant strings.
+• $allowschange returns 0 (false) or 1 (true) if that group can be modified by the current user.
+• $allowschange(UserWikiName)'
+        },
+        footer => {
+            type    => 'text',
+            default => '',
+            DOCCO =>
+'Custom format results: see FormattedSearch for usage, variables & examples'
+        },
+        seperator => {
+            type    => 'text',
+            default => '',
+            DOCCO   => 'Line separator between hits'
+        },
+        limit => {
+            type    => 'text',
+            default => '',
+            DOCCO =>
+'Limit the number of results returned. This is done after sorting if order is specified'
+        },
+        limited => {
+            type    => 'text',
+            default => '',
+            DOCCO =>
+'If limit is set, and the list is truncated, this text will be added at the end of the list '
+        },
+    },
     SEARCH => {
         DOCUMENTATION => {
             type  => 'DOCCO',
@@ -80,6 +131,12 @@ my %syntax = (
             default => '',
             DOCCO =>
 'Expand variables before applying a FormattedSearch on a search hit. Useful to show the expanded text, e.g. to show the result of a SpreadSheetPlugin %CALC{}% instead of the formula'
+        },
+        footer => {
+            type    => 'text',
+            default => '',
+            DOCCO =>
+'Custom format results: see FormattedSearch for usage, variables & examples'
         },
         seperator => {
             type    => 'text',
