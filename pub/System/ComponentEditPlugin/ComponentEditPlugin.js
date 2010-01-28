@@ -75,8 +75,9 @@ Foswiki.ComponentEditPlugin.saveClick = function(event) {
     var tg = (event.target) ? event.target : event.srcElement;
     var result = tg.form.elements.namedItem("componentedit").value;
     
-//    tinyMCEPopup.execCommand('mceRemoveNode', false, result);
-    tinyMCEPopup.execCommand('mceInsertContent', false, result);
+    //result = '<span class="WYSIWYG_PROTECTED">'+result+'</span>';
+    
+    tinyMCEPopup.execCommand('mceReplaceContent', false, result);
 
     return;
 

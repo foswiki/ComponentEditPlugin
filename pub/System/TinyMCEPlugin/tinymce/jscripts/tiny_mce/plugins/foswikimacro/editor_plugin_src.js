@@ -59,7 +59,10 @@
 				//TODO: need to set the selection to the entire innerHTML
 				if ((typeof(selectedNode.innerHTML) != "undefined") && 
 					(selectedNode.innerHTML[0] == '%')) {
-					//alert(selectedNode.innerHTML);
+					var range = ed.selection.getRng();
+					range.selectNodeContents(selectedNode);
+					ed.selection.setRng(range);
+					
 					ed.windowManager.open({
 					    title: 'foswiki Macro Editor',
 					    location: false,
