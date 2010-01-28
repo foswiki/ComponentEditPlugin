@@ -72,7 +72,7 @@ my %syntax = (
             DOCCO =>
 'Custom format results: see FormattedSearch for usage, variables & examples'
         },
-        seperator => {
+        separator => {
             type    => 'text',
             default => '',
             DOCCO   => 'Line separator between hits'
@@ -138,7 +138,7 @@ my %syntax = (
             DOCCO =>
 'Custom format results: see FormattedSearch for usage, variables & examples'
         },
-        seperator => {
+        separator => {
             type    => 'text',
             default => '',
             DOCCO   => 'Line separator between hits'
@@ -293,7 +293,7 @@ sub getEdit {
         my $attrs = new Foswiki::Attrs($search);
 
         $helperform =
-          CGI::start_table( { border => 1, class => 'foswikiFormTable' } );
+          CGI::start_table( { border => 0, class => 'foswikiFormTable' } );
 
         #put DOCCO and defaultparameter first
         $helperform .= CGI::Tr(
