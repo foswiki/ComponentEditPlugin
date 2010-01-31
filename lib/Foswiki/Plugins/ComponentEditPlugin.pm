@@ -280,7 +280,7 @@ sub getEdit {
     #TODO: very naive multi-line removeal
     $tml =~ s/"\s*\n/"/g;
 
-    print STDERR "---- ($tml)---\n";
+    #print STDERR "---- ($tml)---\n";
 
     my $helperform = '';
     #TODO: hand coded dumbness - go find the MarcoRegex..
@@ -294,6 +294,8 @@ sub getEdit {
 
         $helperform =
           CGI::start_table( { border => 0, class => 'foswikiFormTable' } );
+          
+        my @rows;
 
         #put DOCCO and defaultparameter first
         $helperform .= CGI::Tr(
@@ -311,11 +313,18 @@ sub getEdit {
             my @docco_attrs;
             push( @docco_attrs, title => $syntax{$type}->{$param_keys}->{DOCCO} );
 
-            $helperform .= CGI::Tr(
+            my $_DEFAULT_TAG = $syntax{$type}->{$param_keys}->{defaultparameter} || 0;
+            my $line = CGI::Tr(
                 CGI::td( {@docco_attrs}, $param_keys ),
                 CGI::td($value),
             );
+            if ($_DEFAULT_TAG) {
+                unshift(@rows, $line);
+            } else {
+                push(@rows, $line);
+            }
         }
+        $helperform .= join("\n", @rows);
         $helperform .= CGI::end_table();
     } else {
         #not a tag?
@@ -416,7 +425,8 @@ sub getHtmlControlFor {
             -onchange =>
               'Foswiki.ComponentEditPlugin.inputFieldModified(event)',
             -onkeyup => 'Foswiki.ComponentEditPlugin.inputFieldModified(event)',
-            -foswikidefault => $syntax{$TMLtype}->{$param_key}->{default}
+            -foswikidefault => $syntax{$TMLtype}->{$param_key}->{default},
+            -defaultparameter => $syntax{$TMLtype}->{$param_key}->{defaultparameter}
         );
     }
     elsif ( $syntax{$TMLtype}->{$param_key}->{type} eq 'dropdown' ) {
@@ -439,7 +449,8 @@ sub getHtmlControlFor {
                 title => $syntax{$TMLtype}->{$param_key}->{default},
                 onchange =>
                   'Foswiki.ComponentEditPlugin.inputFieldModified(event)',
-                foswikidefault => $syntax{$TMLtype}->{$param_key}->{default}
+                foswikidefault => $syntax{$TMLtype}->{$param_key}->{default},
+                defaultparameter => $syntax{$TMLtype}->{$param_key}->{defaultparameter}
             },
             $choices
         );
@@ -455,7 +466,8 @@ sub getHtmlControlFor {
             $radio_attrs{$item} = {
                 class          => 'foswikiRadioButton',
                 label          => $item,
-                foswikidefault => $syntax{$TMLtype}->{$param_key}->{default}
+                foswikidefault => $syntax{$TMLtype}->{$param_key}->{default},
+                defaultparameter => $syntax{$TMLtype}->{$param_key}->{defaultparameter}
             };    #$session->handleCommonTags( $item, $web, $topic ) };
 
             $selected = $item if ( $item eq $value );
@@ -464,7 +476,8 @@ sub getHtmlControlFor {
         $control = CGI::radio_group(
             -name    => $param_key,
             -values  => $options,
-            -default => $value || $syntax{$TMLtype}->{$param_key}->{default},
+            -foswikidefault => $value || $syntax{$TMLtype}->{$param_key}->{default},
+             -defaultparameter => $syntax{$TMLtype}->{$param_key}->{defaultparameter}
 
             #                                   -columns => $size,
             -attributes => \%radio_attrs,

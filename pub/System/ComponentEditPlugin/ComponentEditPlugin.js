@@ -74,9 +74,7 @@ Foswiki.ComponentEditPlugin.popupEdit = function(event, tml) {
 Foswiki.ComponentEditPlugin.saveClick = function(event) {
     var tg = (event.target) ? event.target : event.srcElement;
     var result = tg.form.elements.namedItem("componentedit").value;
-    
-    //result = '<span class="WYSIWYG_PROTECTED">'+result+'</span>';
-    
+      
     tinyMCEPopup.execCommand('mceReplaceContent', false, result);
 
     return;
@@ -124,8 +122,16 @@ Foswiki.ComponentEditPlugin.inputFieldModified = function(event) {
 
         var defaultval = elem.getAttribute('foswikidefault');
         if ((typeof( defaultval ) != "undefined") && (elem.value == defaultval)) {continue;};
+        
+        var _defaultparam = elem.getAttribute('defaultparameter');
+        //alert(_defaultparam);
+        if (((typeof( _defaultparam ) != "undefined") && (_defaultparam == 1)) ||
+            (elem.name == "_DEFAULT")){
+            tml = tml + '   "'+elem.value+'" \n';
+        } else {
+            tml = tml + '   '+elem.name +'="'+elem.value+'" \n';
+        };
 
-        tml = tml + '   '+elem.name +'="'+elem.value+'" \n';
     }
 
     tml = tml+'}';
