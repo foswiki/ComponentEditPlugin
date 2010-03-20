@@ -476,8 +476,7 @@ sub getHtmlControlFor {
         $control = CGI::radio_group(
             -name    => $param_key,
             -values  => $options,
-            -foswikidefault => $value || $syntax{$TMLtype}->{$param_key}->{default},
-             -defaultparameter => $syntax{$TMLtype}->{$param_key}->{defaultparameter}
+            -default => $value || $syntax{$TMLtype}->{$param_key}->{default},
 
             #                                   -columns => $size,
             -attributes => \%radio_attrs,
